@@ -36,28 +36,9 @@ async def on_ready():
     await carregar_cogs()
     synced_commands = await bot.tree.sync()
     print(f'{len(synced_commands)} comandos sincronizados.')
-    enviar_mensagem.start()
     print('bot inicializado com sucesso')
 
-@bot.event #evento que é disparado quando um novo usuário se junta ao discord
-async def on_member_join(member:discord.Member): #o parâmetro member armazena: member:discord.Member 
-    canal = bot.get_channel(1436358990069104821) #aqui é atribuido um canal específico para o bot enviar a mensagem de boas-vindas
-    await canal.send(f'Bem vindo ao servidor {member.mention}!') #canal.send: envia a msg no canal específico mencionando o novo membro.
 
-@bot.event
-async def on_reaction_add(reacao:discord.Reaction, membro:discord.Member):
-    await reacao.message.reply(f'O membro {membro.mention} reagiu a mensagem com {reacao.emoji}')
-
-##########################################################################################################################################
-## tasks
-#tasks são tarefas que, por exemplo, podem ser programadas para serem realizadas constantemente
-#tudo que for task é necessário inicializar ou seja, devo chamar essa função da task no inicializar do bot (on_ready)
-#enviar_mensagem.start()
-
-@tasks.loop(time=time(12,0)) #Nessa task, importamos a biblioteca time para obter um horário específico e programamos a task para enviar uma mensagem sempre naquele mesmo horário em um canal específico.
-async def enviar_mensagem():
-    canal = bot.get_channel(1349209863590514751)
-    await canal.send(f'Olá')
 
 ##########################################################################################################################################
 ## Commands

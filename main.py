@@ -12,22 +12,32 @@ TOKEN = os.getenv('BOT_TOKEN')
 intents = discord.Intents.all() #essa variável armazena TODAS as permissões do discord
 bot = commands.Bot(command_prefix='!', intents = intents) #variável objeto que armazena todo o bot
 
+#Ao atribuir commands.Bot para a variável bot, automaticamente o a classe bot cria um atributo bot.tree (onde se encontram todos os comandos)
+#em cada módulo do cogs, os comandos são criados à parte e somente são implementados bot.tree através do setup do módulo em bot.add_cogs
+
+#Importação de módulos pessoais
+#não se deve passar a extensão do arquivo para ser carregado, somente o nome
+'''bot.load_extension('cogs.calculos')'''
+
+#Essa função carrega todos os cogs presentes, é um loop que passa carregando de arquivo em arquivo sem a necessidade de carregar individualmente.
+async def carregar_cogs():
+    for arquivo in os.listdir('cogs'):
+        if arquivo.endswith('.py'): #impede que leia qualquer coisa que não seja um arquivo .py
+            await bot.load_extension(f'cogs.{arquivo[:-3]}') #caso seja passado somente {arquivo}, será identificado o .py, por isso utiliza-se p [:-3] para que os 3 ultimos indices não sejam lidos
+
+#Importação de módulos pessoais
+##bot.load_extension('cogs.calculos')
+
 ##########################################################################################################################################
 ## Events
 
 @bot.event  #criação de um evento que é disparado quando o bot estiver pronto
 async def on_ready():
+    await carregar_cogs()
     synced_commands = await bot.tree.sync()
     print(f'{len(synced_commands)} comandos sincronizados.')
     enviar_mensagem.start()
     print('bot inicializado com sucesso')
-
-@bot.event
-async def on_message(msg:discord.Message):
-    if msg.author.bot:
-        return
-    await bot.process_commands(msg)
-    #await msg.reply(f'Olá {msg.author.mention}')
 
 @bot.event #evento que é disparado quando um novo usuário se junta ao discord
 async def on_member_join(member:discord.Member): #o parâmetro member armazena: member:discord.Member 
@@ -76,35 +86,11 @@ async def ola(ctx:commands.Context):        #ctx variável que é do tipo Contex
 #A limitação do interaction é que ele só pode mandar uma resposta, ou seja só pode haver um interact.response...
 #Caso a resposta demore mais de 3 segundo para sair, o bot dará um erro, então para contornar isso, utilizamos interact.response.defer()
 #para contornar isso, utilizamos o interact.followup.send(), onde ele entende que é uma continuação da mensagem.
-
+'''
 @bot.tree.command(name='ola', description='Diz olá para o usuário.')
 async def ola(interact:discord.Interaction): 
     await interact.response.defer(ephemeral=True)
     await interact.followup.send(f'Olá, {interact.user.mention}')
-
-@bot.tree.command(name='somar', description='Realiza a soma entre 2 números.')
-async def somar(interact:discord.Interaction, num1:float, num2:float):
-    res = num1 + num2
-    await interact.response.defer(ephemeral=True)
-    await interact.followup.send(f'A soma entre {num1} e {num2} é igual a: {res}', ephemeral=True)
-
-@bot.tree.command(name='subtrair', description='Realiza a subtração entre 2 números.')
-async def subtrair(interact:discord.Interaction, num1:float, num2:float):
-    res = num1 - num2
-    await interact.response.defer(ephemeral=True)
-    await interact.followup.send(f'A subtração entre {num1} e {num2} é igual a: {res}', ephemeral=True)
-
-@bot.tree.command(name='multiplicar', description='Realiza a multiplicação entre 2 números.')
-async def multiplicar(interact:discord.Interaction, num1:float, num2:float):
-    res = num1 * num2
-    await interact.response.defer(ephemeral=True)
-    await interact.followup.send(f'A multiplicação entre {num1} e {num2} é igual a: {res}', ephemeral=True)
-
-@bot.tree.command(name='dividir', description='Realiza a divisão entre 2 números.')
-async def dividir(interact:discord.Interaction, num1:float, num2:float):
-    res = num1 / num2
-    await interact.response.defer(ephemeral=True)
-    await interact.followup.send(f'A divisão entre {num1} e {num2} é igual a: {res}', ephemeral=True)
 
 @bot.tree.command(name='par_ou_impar', description='Verifica se um número é par ou ímpar.')
 async def par_ou_impar(interact:discord.Interaction, num1:int):
@@ -116,19 +102,38 @@ async def par_ou_impar(interact:discord.Interaction, num1:int):
     await interact.followup.send(f'O número {num1} é {res}.', ephemeral=True)
 
 @bot.tree.command(name='github', description='Divulge o seu GitHub')
-async def github_slash(interact:discord.Interaction, url_github:str, seu_nome:str, descrição:str):
+async def github_slash(interact:discord.Interaction, url_github:str, seu_nome:str, descrição:str, url_linkedin:str):
     embed = discord.Embed()
     embed.set_author(name=seu_nome)
-    embed.title = 'Clique aqui para acessar meu GitHub'
-    embed.url = url_github
+    embed.title = 'Divulgação GitHub'
     embed.description = descrição
     imagem = discord.File('images/github_logo_black.png', 'github_logo_black.png')
     embed.set_image(url='attachment://github_logo_black.png')
     embed.set_thumbnail(url='attachment://github_logo_black.png')
     embed.set_footer(text='Divulgação GitHub')
     embed.color = 16777215
+
+    #botão
+    async def escolha(interaction:discord.Interaction):
+        escolha = interact.data['values']
+        await interaction.response.send_message('escolha')
+    botao = discord.ui.Button(label='GitHub', style=discord.ButtonStyle.link, url=url_github)
+    view = discord.ui.View()
+    view.add_item(botao)
+
+    botaoSelecao = discord.ui.Select(placeholder='Selecione uma rede social:')
+    opcoes = [
+        discord.SelectOption(label='GitHub', value='1', ),
+        discord.SelectOption(label='LinkedIn', value='2')
+    ]
+
+    botaoSelecao.options = opcoes
+
+    view.add_item(botaoSelecao)
+    
     await interact.response.defer()
-    await interact.followup.send(embed=embed, file=imagem)
+    await interact.followup.send(embed=embed, file=imagem, view=view)'''
+
 ##########################################################################################################################################
 ## Embeds ##
 
@@ -144,7 +149,16 @@ async def enviar_embed(ctx:commands.Context):
     embed.set_footer(text='Mensagem de teste')
     embed.set_author(name='Lucas Vilaronga', icon_url=ctx.author.avatar)
 
-    await ctx.reply(embed=embed, file=imagem)
+    #criação de botão
+    async def resposta_botao(interact:discord.Interaction):
+        await interact.response.send_message('Você clicou no botão')
+    view = discord.ui.View()
+    botao = discord.ui.Button(label='clique aqui', style=discord.ButtonStyle.grey)
+    botao.callback = resposta_botao
+    view.add_item(botao)
+
+
+    await ctx.reply(embed=embed, file=imagem, view=view)
 
 @bot.command()
 async def github(ctx:commands.Context):

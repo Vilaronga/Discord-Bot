@@ -27,7 +27,7 @@ class Embeds(commands.Cog):
         embed.set_author(name=f'@{interact.user.name}')
         embed.title = seu_nome.title()
         embed.description = descricao.lower().capitalize()
-        imagem = discord.File('cogs/images/github_logo_black.png', 'github_logo_black.png')
+        imagem = discord.File('cogs/images/github_logo_black.png', 'github_logo_black.png') #a busca pelo file sempre deve partir do diretório do arquivo main.py
         embed.set_image(url='attachment://github_logo_black.png')
         embed.set_thumbnail(url=f'{interact.user.avatar}')
         embed.set_footer(text='Divulgação GitHub')

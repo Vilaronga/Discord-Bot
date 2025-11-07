@@ -37,21 +37,5 @@ async def on_ready():
     print(f'{len(synced_commands)} comandos sincronizados.')
     print('bot inicializado com sucesso')
 
-'''
-@bot.tree.command(name='ola', description='Diz olá para o usuário.')
-async def ola(interact:discord.Interaction): 
-    await interact.response.defer(ephemeral=True)
-    await interact.followup.send(f'Olá, {interact.user.mention}')
-
-@bot.tree.command(name='par_ou_impar', description='Verifica se um número é par ou ímpar.')
-async def par_ou_impar(interact:discord.Interaction, num1:int):
-    if num1 % 2 == 0:
-        res = 'par'
-    else:
-        res = 'impar'
-    await interact.response.defer(ephemeral=True)
-    await interact.followup.send(f'O número {num1} é {res}.', ephemeral=True)
-'''
-
 ############################################################################################################################################
 bot.run(TOKEN)

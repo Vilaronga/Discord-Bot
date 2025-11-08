@@ -18,8 +18,7 @@ class Utils(commands.Cog):
         else:
             res = 'impar'
         await interact.response.defer(ephemeral=True)
-        await interact.followup.send(f'O número {num1} é {res}.', ephemeral=True)
-
+        await interact.followup.send(f'O número {num1} é {res}.', ephemeral=True)     
 
 async def setup(bot):
     await bot.add_cog(Utils(bot))

@@ -16,7 +16,6 @@ class Tasks(commands.Cog):
 
     #Nessa task, importamos a biblioteca time para obter um horário específico e programamos a task para enviar uma mensagem sempre naquele mesmo horário em um canal específico.
 
-
     @tasks.loop(time=time(19,57, tzinfo=ZoneInfo('America/Sao_Paulo')))
     async def enviar_mensagem(self):
         canal = self.bot.get_channel(1349209863590514751)

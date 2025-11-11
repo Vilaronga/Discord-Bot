@@ -1,15 +1,18 @@
-import discord #importa toda a api do discord
+import discord                      #importa toda a api do discord
 from discord.ext import commands
 from dotenv import load_dotenv
 import os
+
+#sqlalchemy: transforma uma classe em uma tabela no banco de dados, ou seja, todas as alteração são feitas como objeto, sem a necessidade de utilizar código sql.
+
 
 #Importação de tokens do arquivo .env
 load_dotenv()
 TOKEN = os.getenv('BOT_TOKEN')
 
 #intents = permissões do discord que o bot necessita para operar
-intents = discord.Intents.all() #essa variável armazena TODAS as permissões do discord
-bot = commands.Bot(command_prefix='!', intents = intents) #variável objeto que armazena todo o bot
+intents = discord.Intents.all()                             #essa variável armazena TODAS as permissões do discord
+bot = commands.Bot(command_prefix='!', intents = intents)   #variável objeto que armazena todo o bot
 
 #Ao atribuir commands.Bot para a variável bot, automaticamente a classe bot cria um atributo bot.tree (onde se encontram todos os comandos)
 #em cada módulo do cogs, os comandos são criados à parte e somente são implementados bot.tree através do setup do módulo em bot.add_cogs

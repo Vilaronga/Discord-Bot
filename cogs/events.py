@@ -14,7 +14,7 @@ class Events(commands.Cog):
     async def on_message(self, msg:discord.Message):
         if msg.author.bot:
             return
-        elif msg.content == 'Ok':
+        elif msg.content == 'Ok' or msg.content == 'ok':
             await msg.add_reaction('👌')
 
     @commands.Cog.listener()

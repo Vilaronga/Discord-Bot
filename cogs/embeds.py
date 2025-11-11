@@ -23,13 +23,13 @@ class Embeds(commands.Cog):
 
 ############################################################################################################################################ Embed normal
 
-    @app_commands.command(name='github', description='Divulge o seu GitHub')
+    @app_commands.command(name='aaaaaaa', description='Divulge o seu GitHub')
     @app_commands.describe(seu_nome='Digite o seu nome. Ele ficará como título do post.', url_github='Digite a URL do seu GitHub. https://github.com/seu_nome', descricao='Digite uma descrição para o seu post.')
-    async def github(self, interact:discord.Interaction, seu_nome:str, url_github:str, descricao:str):
+    async def aaaaaa(self, interact:discord.Interaction, seu_nome:str, url_github:str, descricao:str):
         try:
             embed = discord.Embed()
             embed.set_author(name=f'@{interact.user.name}')
-            embed.title = seu_nome.title()
+            embed.title = seu_nome.lower().title()
             embed.description = descricao.lower().capitalize()
             imagem = discord.File('cogs/images/github_logo_black.png', 'github_logo_black.png') #a busca pelo file sempre deve partir do diretório do arquivo main.py
             embed.set_image(url='attachment://github_logo_black.png')
@@ -44,12 +44,11 @@ class Embeds(commands.Cog):
     
             await interact.response.defer(ephemeral=True)
             await interact.followup.send(embed=embed, file=imagem, view=view)
-            
         except discord.HTTPException as link_invalido:
             await interact.response.send_message(f'Infelizmente o link fornecido não é válido. Tente novamente!', ephemeral=True)
         
-    @app_commands.command(name='publicar_git', description='Divulgue seus projetos do GitHub.')
-    async def registrar(self, interact:discord.Interaction):
+    @app_commands.command(name='aaaaaaaaaaaaaa', description='Divulgue seus projetos do GitHub.')
+    async def aaaa(self, interact:discord.Interaction):
         await interact.response.send_modal(Git_Modal())
 
 ############################################################################################################################################ Embed com modal (Formulário) - Somente para mais comodidade

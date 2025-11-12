@@ -17,10 +17,29 @@ class GitHubIntegração(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    #Comando commits
+    ######################################################################################################################################################## Métodos
+
+    async def get_repos(self, interaction:discord.Interaction, current:str):
+        sessao = sessaoAtual()
+        repos = sessao.query(Repositorios).all()
+        escolhas = []
+        for repo in repos:
+            escolhas.append(
+                app_commands.Choice(name=f'📁 {repo.repo_nome}', value=str(repo.repo_url))
+            )
+        sessao.close()
+        return escolhas
+    
+    ######################################################################################################################################################## Comandos
+
+    #Comando /commits
     @app_commands.command(name="commits", description="Mostra os commits mais recentes do repositório selecionado.")
-    async def commits(self, interaction: discord.Interaction, usuario: str, repositorio: str):
-        url = f"https://api.github.com/repos/{usuario}/{repositorio}/commits"
+    @app_commands.autocomplete(repositorio=get_repos)
+    async def commits(self, interaction:discord.Interaction, repositorio:str):
+        url_formada = repositorio.rstrip('/').split('/')
+        repo_dono = url_formada[-2]
+        repo_nome = url_formada[-1]
+        url = f"https://api.github.com/repos/{repo_dono}/{repo_nome}/commits"
         resposta = requests.get(url, headers=HEADERS)
         commits = resposta.json()
 
@@ -28,10 +47,10 @@ class GitHubIntegração(commands.Cog):
             await interaction.response.send_message("⚠️ Nenhum commit encontrado.", ephemeral=True)
 
         embed = discord.Embed()
-        embed.title=f"Últimos 5 commits em {usuario}/{repositorio}"
+        embed.title=f'Últimos 5 commits em {repo_dono}/{repo_nome}'
         embed.color=16777215
 
-        for commit in commits[:5]:  # mostra os 5 commits mais recentes
+        for commit in commits[:5]:                      # mostra os 5 commits mais recentes
             autor = commit["commit"]["author"]["name"]
             mensagem = commit["commit"]["message"]
             data = commit["commit"]["author"]["date"]
@@ -39,16 +58,20 @@ class GitHubIntegração(commands.Cog):
 
             embed.add_field(name=f"🔃 {autor} — {data[:10]}", value=f"[{mensagem}]({url_commit})", inline=False)
 
-        botao = discord.ui.Button(label='Todos os commits', style=discord.ButtonStyle.link, url=f'https://github.com/{usuario}/{repositorio}/commits')
+        botao = discord.ui.Button(label='Todos os commits', style=discord.ButtonStyle.link, url=f'https://github.com/{repo_dono}/{repo_nome}/commits')
         view = discord.ui.View()
         view.add_item(botao)
 
         await interaction.response.send_message(embed=embed, view=view)
 
-    #Comando Pushs
-    @app_commands.command(name="pushs", description="Mostra quem enviou pushs recentes para o repositório.")
-    async def pushs(self, interaction: discord.Interaction, usuario: str, repositorio: str):
-        url = f"https://api.github.com/repos/{usuario}/{repositorio}/events"
+    #Comando /pushs
+    @app_commands.command(name="pushs", description="Mostra quem enviou pushs recentes para o repositório selecionado.")
+    @app_commands.autocomplete(repositorio=get_repos)
+    async def pushs(self, interaction: discord.Interaction, repositorio: str):
+        url_formada = repositorio.rstrip('/').split('/')
+        repo_dono = url_formada[-2]
+        repo_nome = url_formada[-1]
+        url = f"https://api.github.com/repos/{repo_dono}/{repo_nome}/events"
         resposta = requests.get(url, headers=HEADERS)
 
         eventos = resposta.json()
@@ -61,7 +84,7 @@ class GitHubIntegração(commands.Cog):
             await interaction.response.send_message("⚠️ Nenhum push recente encontrado.", ephemeral=True)
 
         embed = discord.Embed()
-        embed.title=f"Últimos 5 pushs em {usuario}/{repositorio}"
+        embed.title=f"Últimos 5 pushs em {repo_dono}/{repo_nome}"
         embed.color=16777215
 
         for push in pushs[:5]:
@@ -70,16 +93,20 @@ class GitHubIntegração(commands.Cog):
             data = push["created_at"]
             embed.add_field(name=f"📤 {autor} — {data[:10]}", value=f"Id do push: {pushid}.", inline=False)
 
-        botao = discord.ui.Button(label='Insights', style=discord.ButtonStyle.link, url=f'https://github.com/{usuario}/{repositorio}/pulse')
+        botao = discord.ui.Button(label='Insights', style=discord.ButtonStyle.link, url=f'https://github.com/{repo_dono}/{repo_nome}/pulse')
         view = discord.ui.View()
         view.add_item(botao)
 
         await interaction.response.send_message(embed=embed, view=view)
 
    #Comando Issues
-    @app_commands.command(name="issues", description="Lista as 5 últimas issues abertas.")
-    async def issues(self, interaction: discord.Interaction, usuario: str, repositorio: str):
-        url = f"https://api.github.com/repos/{usuario}/{repositorio}/issues"
+    @app_commands.command(name="issues", description="Lista as 5 últimas issues abertas do repositório selecionado.")
+    @app_commands.autocomplete(repositorio=get_repos)
+    async def issues(self, interaction:discord.Interaction, repositorio:str):
+        url_formada = repositorio.rstrip('/').split('/')
+        repo_dono = url_formada[-2]
+        repo_nome = url_formada[-1]
+        url = f"https://api.github.com/repos/{repo_dono}/{repo_nome}/issues"
         resposta = requests.get(url, headers=HEADERS)
         issues = resposta.json()
 
@@ -87,7 +114,7 @@ class GitHubIntegração(commands.Cog):
             await interaction.response.send_message("✅ Nenhuma issue aberta encontrada.", ephemeral=True)
 
         embed = discord.Embed()
-        embed.title=f"Últimas 5 issues abertas em {usuario}/{repositorio}"
+        embed.title=f"Últimas 5 issues abertas em {repo_dono}/{repo_nome}"
         embed.color= 16777215
 
         for issue in issues[:5]:
@@ -97,7 +124,7 @@ class GitHubIntegração(commands.Cog):
             data = issue["created_at"]
             embed.add_field(name=f"📋Por {autor} — {data[:10]}", value=f"[{titulo}]({url_issue})", inline=False)
         
-        botao = discord.ui.Button(label='Todos as issues', style=discord.ButtonStyle.link, url=f'https://github.com/{usuario}/{repositorio}/issues')
+        botao = discord.ui.Button(label='Todos as issues', style=discord.ButtonStyle.link, url=f'https://github.com/{repo_dono}/{repo_nome}/issues')
         view = discord.ui.View()
         view.add_item(botao)
 
@@ -135,7 +162,7 @@ class GitHubIntegração(commands.Cog):
             botao = discord.ui.Button(label='GitHub', style=discord.ButtonStyle.link, url=link)
             view = discord.ui.View()
             view.add_item(botao)
-    
+            sessao.close()
             await interact.response.defer(ephemeral=True)
             await interact.followup.send(embed=embed, file=imagem, view=view)
         else:
@@ -147,7 +174,7 @@ class GitHubIntegração(commands.Cog):
     async def rep_register(self, interact:discord.Interaction):
         await interact.response.send_modal(RegistrarRep_Modal())
 
-    @app_commands.command(name='vincular_github', description='Vincula o GitHub ao seu perfil do Discord')
+    @app_commands.command(name='vincular_github', description='Vincula seu GitHub ao seu perfil do Discord')
     async def vincular_github(self, interact:discord.Interaction):
         await interact.response.send_modal(VincularGit_Modal())
 

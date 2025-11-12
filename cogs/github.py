@@ -39,8 +39,8 @@ class GitHubIntegração(commands.Cog):
         url_formada = repositorio.rstrip('/').split('/')
         repo_dono = url_formada[-2]
         repo_nome = url_formada[-1]
-        url = f"https://api.github.com/repos/{repo_dono}/{repo_nome}/commits"
-        resposta = requests.get(url, headers=HEADERS)
+        api = f"https://api.github.com/repos/{repo_dono}/{repo_nome}/commits"
+        resposta = requests.get(api, headers=HEADERS)
         commits = resposta.json()
 
         if not commits:
@@ -71,9 +71,8 @@ class GitHubIntegração(commands.Cog):
         url_formada = repositorio.rstrip('/').split('/')
         repo_dono = url_formada[-2]
         repo_nome = url_formada[-1]
-        url = f"https://api.github.com/repos/{repo_dono}/{repo_nome}/events"
-        resposta = requests.get(url, headers=HEADERS)
-
+        api = f"https://api.github.com/repos/{repo_dono}/{repo_nome}/events"
+        resposta = requests.get(api, headers=HEADERS)
         eventos = resposta.json()
         pushs = []                             #criação de lista que irá armazenar todos os pushs
         for push in eventos:                   #loop para verificar se o tipo de evento foi um push, se sim ele armazena na lista pushs[]
@@ -106,8 +105,8 @@ class GitHubIntegração(commands.Cog):
         url_formada = repositorio.rstrip('/').split('/')
         repo_dono = url_formada[-2]
         repo_nome = url_formada[-1]
-        url = f"https://api.github.com/repos/{repo_dono}/{repo_nome}/issues"
-        resposta = requests.get(url, headers=HEADERS)
+        api = f"https://api.github.com/repos/{repo_dono}/{repo_nome}/issues"
+        resposta = requests.get(api, headers=HEADERS)
         issues = resposta.json()
 
         if not issues:
@@ -130,6 +129,64 @@ class GitHubIntegração(commands.Cog):
 
         await interaction.response.send_message(embed=embed, view=view)
     
+    #comando /branches
+    @app_commands.command(name='branches', description='Verifica as branches de um repositório selecionado.')
+    @app_commands.autocomplete(repositorio=get_repos)
+    async def branches(self, interact:discord.Interaction, repositorio:str):
+        url_formatada = repositorio.rstrip('/').split('/')
+        repo_dono = url_formatada[-2]
+        repo_nome = url_formatada[-1]
+        api = f'https://api.github.com/repos/{repo_dono}/{repo_nome}/branches'
+        resposta = requests.get(api, headers=HEADERS)
+        branches = resposta.json()
+
+        embed = discord.Embed()
+        embed.title = f'Branches criadas em {repo_dono}/{repo_nome}'
+        embed.color = 16777215
+
+        for branch in branches:
+            nome = branch["name"]
+            sha = branch["commit"]["sha"]
+            embed.add_field(name=f'🌱 Branch: {nome}', value=f'SHA do último commit: {sha}', inline=False)
+
+        botao = discord.ui.Button(label='Todas as Branches', style=discord.ButtonStyle.link, url=f'https://github.com/{repo_dono}/{repo_nome}/branches')
+        view = discord.ui.View()
+        view.add_item(botao)
+
+        await interact.response.send_message(embed=embed, view=view)
+
+    #comando /detalhes_repositorio
+    @app_commands.command(name='detalhes_repositorio', description='Verifica os detalhes de um repositório selecionado.')
+    @app_commands.autocomplete(repositorio=get_repos)
+    async def detalhes(self, interact:discord.Interaction, repositorio:str):
+        url_formatada = repositorio.rstrip('/').split('/')
+        repo_dono = url_formatada[-2]
+        repo_nome = url_formatada[-1]
+        api = f'https://api.github.com/repos/{repo_dono}/{repo_nome}'
+        resposta = requests.get(api, headers=HEADERS)
+        detalhes = resposta.json()
+
+        embed = discord.Embed()
+        embed.set_author(name=detalhes["owner"]["login"])
+        embed.set_thumbnail(url=detalhes["owner"]["avatar_url"])
+        embed.title = f'Detalhes: {repo_dono}/{repo_nome}'
+        embed.color = 16777215
+        embed.description = detalhes["description"]
+        embed.add_field(name='', value='', inline=False)
+        embed.add_field(name=f'🖥️ Linguagem principal:', value=f'{detalhes["language"]}', inline=True)
+        embed.add_field(name=f'⭐ Avaliações:', value=f'{detalhes["stargazers_count"]} avaliações.', inline=True)
+        embed.add_field(name=f'👁️ Visibilidade:', value=f'{detalhes["visibility"]}', inline=True)
+        embed.add_field(name=f'⛓️‍💥 Forks:', value=f'{detalhes["forks"]}', inline=True)
+        embed.add_field(name=f'📋 Issues abertas:', value=f'{detalhes["open_issues_count"]}', inline=True)
+        embed.add_field(name=f'🔑 Licença:', value=f'{detalhes["license"]["name"]}', inline=True)
+
+        botao = discord.ui.Button(label='Projeto completo', style=discord.ButtonStyle.link, url=f'https://github.com/{repo_dono}/{repo_nome}')
+        view = discord.ui.View()
+        view.add_item(botao)
+
+        await interact.response.send_message(embed=embed, view=view)
+
+    #comando /github
     @app_commands.command(name='github', description='Verifica o GitHub de algum usuário.')
     async def github(self, interact:discord.Interaction, usuario:discord.Member):
         discord_id = usuario.id
@@ -170,10 +227,12 @@ class GitHubIntegração(commands.Cog):
 
     ######################################################################################################################################################## Modals:
 
+    #comando /registrar_repositorio
     @app_commands.command(name='registrar_repositorio', description='Registra um repositório ao banco de dados.')
     async def rep_register(self, interact:discord.Interaction):
         await interact.response.send_modal(RegistrarRep_Modal())
 
+    #comando /vincular_github
     @app_commands.command(name='vincular_github', description='Vincula seu GitHub ao seu perfil do Discord')
     async def vincular_github(self, interact:discord.Interaction):
         await interact.response.send_modal(VincularGit_Modal())

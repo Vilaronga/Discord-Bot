@@ -20,70 +20,49 @@ from discord.ext import commands
 class Embeds(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-############################################################################################################################################ Embed normal
-
-    @app_commands.command(name='aaaaaaa', description='Divulge o seu GitHub')
-    @app_commands.describe(seu_nome='Digite o seu nome. Ele ficará como título do post.', url_github='Digite a URL do seu GitHub. https://github.com/seu_nome', descricao='Digite uma descrição para o seu post.')
-    async def aaaaaa(self, interact:discord.Interaction, seu_nome:str, url_github:str, descricao:str):
-        try:
-            embed = discord.Embed()
-            embed.set_author(name=f'@{interact.user.name}')
-            embed.title = seu_nome.lower().title()
-            embed.description = descricao.lower().capitalize()
-            imagem = discord.File('cogs/images/github_logo_black.png', 'github_logo_black.png') #a busca pelo file sempre deve partir do diretório do arquivo main.py
-            embed.set_image(url='attachment://github_logo_black.png')
-            embed.set_thumbnail(url=f'{interact.user.avatar}')
-            embed.set_footer(text='Divulgação GitHub')
-            embed.color = 16777215
-
-            #botão
-            botao = discord.ui.Button(label='GitHub', style=discord.ButtonStyle.link, url=url_github)
-            view = discord.ui.View()
-            view.add_item(botao)
-    
-            await interact.response.defer(ephemeral=True)
-            await interact.followup.send(embed=embed, file=imagem, view=view)
-        except discord.HTTPException as link_invalido:
-            await interact.response.send_message(f'Infelizmente o link fornecido não é válido. Tente novamente!', ephemeral=True)
         
-    @app_commands.command(name='aaaaaaaaaaaaaa', description='Divulgue seus projetos do GitHub.')
-    async def aaaa(self, interact:discord.Interaction):
+    @app_commands.command(name='criar_embed', description='Crie um embed personalizada.')
+    async def criar_embed(self, interact:discord.Interaction):
         await interact.response.send_modal(Git_Modal())
 
 ############################################################################################################################################ Embed com modal (Formulário) - Somente para mais comodidade
 
-## Modal é meio que um formulário que faz parte de uma view, por isso utiliza-se o self.add_item(self.x), para adicionar dentro da view (visualização).
+## Modal é meio que um formulário (parecido com uma view), por isso utiliza-se o self.add_item(self.x), para adicionar o objeto dentro do objeto view (visualização).
 
 class Git_Modal(discord.ui.Modal):
     def __init__(self):
-        super().__init__(title='Publicar Git', timeout=None) #super é uma função especial do python que permite chamar métodos da classe-pai, dentro da classe filha. Nesse casso ele chama o __init__ que está dentro da classe discord.ui.Modal
+        super().__init__(title='Criar Embed', timeout=None) #super é uma função especial do python que permite chamar métodos da classe-pai, dentro da classe filha. Nesse casso ele chama o __init__ que está dentro da classe discord.ui.Modal
         
-        self.nome = discord.ui.TextInput(label='Nome', placeholder='Digite seu nome aqui', max_length=30)
-        self.url_github = discord.ui.TextInput(label='URL GitHub', placeholder='https://github.com/seu_nome', max_length=80)
-        self.sobre = discord.ui.TextInput(label='Conte-nos um pouco sobre você.', required=True, style=discord.TextStyle.long)
+        self.titulo = discord.ui.TextInput(label='Titulo', placeholder='Digite o título do post', required=True, max_length=45)
+        self.descricao = discord.ui.TextInput(label='Descrição', placeholder='Digite uma descrição do seu embed', required=True, style=discord.TextStyle.long)
+        self.cor = discord.ui.TextInput(label=f'Cor - Cores em https://encurtador.com.br/BWfN', placeholder='Utilize o "Int value" da cor.', max_length=10)
+        self.url = discord.ui.TextInput(label='URL - Imagem', placeholder='Digite um link de alguma imagem para seu Embed.')
+        self.link = discord.ui.TextInput(label='URL', placeholder='Digite um link de redirecionamento para outro local se houver.')
 
-        self.add_item(self.nome)
-        self.add_item(self.url_github)
-        self.add_item(self.sobre)
+        self.add_item(self.titulo)
+        self.add_item(self.descricao)
+        self.add_item(self.cor)
+        self.add_item(self.url)
+        self.add_item(self.link)
 
     async def on_submit(self, interact:discord.Interaction):
         try:
             embed = discord.Embed()
-            embed.title = self.nome.value.title()
+            embed.title = self.titulo.value.title()
             embed.set_author(name=interact.user.name)
-            embed.description = self.sobre.value.lower().capitalize()
-            imagem = discord.File('cogs/images/github_logo_black.png', 'github_logo_black.png') #a busca pelo file sempre deve partir do diretório do arquivo main.py
-            embed.set_image(url='attachment://github_logo_black.png')
+            embed.description = self.descricao.value.lower().capitalize()
+            embed.set_image(url=self.url.value)
             embed.set_thumbnail(url=interact.user.avatar)
-            embed.set_footer(text='Divulgação GitHub')
-            embed.color = 16777215
+            embed.set_footer(text='Embed gerado com sucesso.')
+            cor = int(self.cor.value.strip())
+            embed.color = cor
 
             #botão
-            botao = discord.ui.Button(label='GitHub', style=discord.ButtonStyle.link, url=self.url_github.value)
-            view = discord.ui.View()
-            view.add_item(botao)
-            await interact.response.send_message(embed=embed, file=imagem, view=view)
+            if self.link.value:
+                botao = discord.ui.Button(label='Saiba mais', style=discord.ButtonStyle.link, url=self.link.value)
+                view = discord.ui.View()
+                view.add_item(botao)
+                await interact.response.send_message(embed=embed, view=view)
         
         except discord.HTTPException as link_invalido:
             await interact.response.send_message(f'Infelizmente o link fornecido não é válido. Tente novamente!', ephemeral=True)

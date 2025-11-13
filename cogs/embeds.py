@@ -23,13 +23,13 @@ class Embeds(commands.Cog):
         
     @app_commands.command(name='criar_embed', description='Crie um embed personalizada.')
     async def criar_embed(self, interact:discord.Interaction):
-        await interact.response.send_modal(Git_Modal())
+        await interact.response.send_modal(Embed_Modal())
 
 ############################################################################################################################################ Embed com modal (Formulário) - Somente para mais comodidade
 
 ## Modal é meio que um formulário (parecido com uma view), por isso utiliza-se o self.add_item(self.x), para adicionar o objeto dentro do objeto view (visualização).
 
-class Git_Modal(discord.ui.Modal):
+class Embed_Modal(discord.ui.Modal):
     def __init__(self):
         super().__init__(title='Criar Embed', timeout=None) #super é uma função especial do python que permite chamar métodos da classe-pai, dentro da classe filha. Nesse casso ele chama o __init__ que está dentro da classe discord.ui.Modal
         

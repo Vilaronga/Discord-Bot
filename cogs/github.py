@@ -49,6 +49,7 @@ class GitHubIntegração(commands.Cog):
         embed = discord.Embed()
         embed.title=f'Últimos 5 commits em {repo_dono}/{repo_nome}'
         embed.color=16777215
+        embed.set_footer(name='Dados obtidos via GitHub API.')
 
         for commit in commits[:5]:                      # mostra os 5 commits mais recentes
             autor = commit["commit"]["author"]["name"]
@@ -85,6 +86,7 @@ class GitHubIntegração(commands.Cog):
         embed = discord.Embed()
         embed.title=f"Últimos 5 pushs em {repo_dono}/{repo_nome}"
         embed.color=16777215
+        embed.set_footer(name='Dados obtidos via GitHub API.')
 
         for push in pushs[:5]:
             autor = push["actor"]["login"]
@@ -98,7 +100,7 @@ class GitHubIntegração(commands.Cog):
 
         await interaction.response.send_message(embed=embed, view=view)
 
-   #Comando Issues
+   #Comando /issues
     @app_commands.command(name="issues", description="Lista as 5 últimas issues abertas do repositório selecionado.")
     @app_commands.autocomplete(repositorio=get_repos)
     async def issues(self, interaction:discord.Interaction, repositorio:str):
@@ -115,6 +117,7 @@ class GitHubIntegração(commands.Cog):
         embed = discord.Embed()
         embed.title=f"Últimas 5 issues abertas em {repo_dono}/{repo_nome}"
         embed.color= 16777215
+        embed.set_footer(name='Dados obtidos via GitHub API.')
 
         for issue in issues[:5]:
             titulo = issue["title"]
@@ -143,6 +146,7 @@ class GitHubIntegração(commands.Cog):
         embed = discord.Embed()
         embed.title = f'Branches criadas em {repo_dono}/{repo_nome}'
         embed.color = 16777215
+        embed.set_footer(name='Dados obtidos via GitHub API.')
 
         for branch in branches:
             nome = branch["name"]
@@ -171,6 +175,7 @@ class GitHubIntegração(commands.Cog):
         embed.set_thumbnail(url=detalhes["owner"]["avatar_url"])
         embed.title = f'Detalhes: {repo_dono}/{repo_nome}'
         embed.color = 16777215
+        embed.set_footer(name='Dados obtidos via GitHub API.')
         embed.description = detalhes["description"]
         embed.add_field(name='', value='', inline=False)
         embed.add_field(name=f'🖥️ Linguagem principal:', value=f'{detalhes["language"]}', inline=True)
@@ -212,8 +217,9 @@ class GitHubIntegração(commands.Cog):
             imagem = discord.File('cogs/images/github_logo_black.png', 'github_logo_black.png') 
             embed.set_image(url='attachment://github_logo_black.png')
             embed.set_thumbnail(url=foto)
-            embed.set_footer(text=f'Repositórios públicos: {num_repos}')
+            embed.add_field(name=f'Repositórios públicos: {num_repos}', value='', inline=True)
             embed.color = 16777215
+            embed.set_footer(name='Dados obtidos via GitHub API.')
 
             #botão
             botao = discord.ui.Button(label='GitHub', style=discord.ButtonStyle.link, url=link)

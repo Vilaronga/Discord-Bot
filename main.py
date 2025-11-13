@@ -5,7 +5,6 @@ import os
 
 #sqlalchemy: transforma uma classe em uma tabela no banco de dados, ou seja, todas as alteração são feitas como objeto, sem a necessidade de utilizar código sql.
 
-
 #Importação de tokens do arquivo .env
 load_dotenv()
 TOKEN = os.getenv('BOT_TOKEN')

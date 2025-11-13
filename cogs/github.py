@@ -231,12 +231,25 @@ class GitHubIntegração(commands.Cog):
         else:
             await interact.response.send_message('O usuário não possui GitHub vinculado.', ephemeral=True)
 
-    ######################################################################################################################################################## Modals:
+    ######################################################################################################################################################### 
+    # Modals:
 
     #comando /registrar_repositorio
     @app_commands.command(name='registrar_repositorio', description='Registra um repositório ao banco de dados.')
     async def rep_register(self, interact:discord.Interaction):
         await interact.response.send_modal(RegistrarRep_Modal())
+
+    #comando /remover_repositorio
+    @app_commands.command(name='remover_repositorio', description='Remove um repositório do banco de dados.')
+    @app_commands.autocomplete(repositorio=get_repos)
+    async def remover_repositorio(self, interact:discord.Interaction, repositorio:str):
+        sessao = sessaoAtual()
+        remover = sessao.query(Repositorios).filter(Repositorios.repo_url == repositorio).first()
+        nome_repo = remover.repo_nome
+        sessao.delete(remover)
+        sessao.commit()
+        sessao.close()
+        await interact.response.send_message(f'O repositório 📁{nome_repo} foi excluido do banco de dados.')
 
     #comando /vincular_github
     @app_commands.command(name='vincular_github', description='Vincula seu GitHub ao seu perfil do Discord')
@@ -278,7 +291,7 @@ class RegistrarRep_Modal(discord.ui.Modal):
         if repo_existe:
             await interact.response.send_message(f'Este repositório já está registrado.')  
             return
-        dados= Repositorios(repo_url = self.url.value, repo_nome=repositorio, repo_dono=dono_repositorio) #atribui os valores às colunas do banco de dados
+        dados = Repositorios(repo_url = self.url.value, repo_nome=repositorio, repo_dono=dono_repositorio) #atribui os valores às colunas do banco de dados
         sessao.add(dados)                                                               #adiciona o id e a url no banco de dados               
         sessao.commit()                                                                 #faz o commit das alterações
         sessao.close()                                                                  #salva as alterações

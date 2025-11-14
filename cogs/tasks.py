@@ -15,10 +15,12 @@ class Tasks(commands.Cog):
 
     #Nessa task, importamos a biblioteca time para obter um horário específico e programamos a task para enviar uma mensagem sempre naquele mesmo horário em um canal específico.
 
-    @tasks.loop(time=time(19,57, tzinfo=ZoneInfo('America/Sao_Paulo')))
+    @tasks.loop(time=time(21, 55, tzinfo=ZoneInfo('America/Sao_Paulo')))
     async def enviar_mensagem(self):
-        canal = self.bot.get_channel(1349209863590514751)
-        await canal.send(f'ola')
+        canal = self.bot.get_channel(1437979561085370409)
+        guild = self.bot.get_guild(1349209862751649862)
+        usuario = guild.get_member(718883021960511549)
+        await canal.send(f'⚠️ Lembre-se de realizar o commit no github, {usuario.mention}.')
 
 async def setup(bot):
     await bot.add_cog(Tasks(bot))

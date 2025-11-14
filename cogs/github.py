@@ -279,7 +279,7 @@ class GitHubIntegração(commands.Cog):
             url_commit = commit["html_url"]
             botao = ui.Button(label='Ver', style=discord.ButtonStyle.link, url= url_commit)
             lista.append(ui.Section(ui.TextDisplay(f'\n🔃 {autor} — {data[:10]}\n{mensagem}'),accessory=botao))
-            lista.append(ui.Separator(visible=False, spacing=discord.SeparatorSpacing.small))
+            lista.append(ui.Separator(visible=False, spacing=discord.SeparatorSpacing.large))
 
         layout = LayoutView(titulo, repositorio, lista)
         await interact.response.send_message(view=layout, files=arquivos)
@@ -339,10 +339,11 @@ class LayoutView(ui.LayoutView):
         for item in lista:
             container.add_item(item)
         
+        container.add_item(ui.Separator(visible=True, spacing=discord.SeparatorSpacing.large))
 
-
+        botao = ui.Button(label='Todos os commits', style=discord.ButtonStyle.link, url=repositorio)
+        container.add_item(ui.Section(ui.TextDisplay(f'### Dados obtidos a partir da API do GitHub.'), accessory=botao))
         self.add_item(container)
-        
         
     async def resposta_menu(self, interact:discord.Interaction):
         resposta = interact.data['values'][0]

@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from discord import app_commands
+from discord import app_commands, ui
 import requests
 import os
 from dotenv import load_dotenv
@@ -255,6 +255,34 @@ class GitHubIntegração(commands.Cog):
     @app_commands.command(name='vincular_github', description='Vincula seu GitHub ao seu perfil do Discord')
     async def vincular_github(self, interact:discord.Interaction):
         await interact.response.send_modal(VincularGit_Modal())
+    
+    #comando commit melhorado
+    @app_commands.command(name='commit2', description='commits2')
+    @app_commands.autocomplete(repositorio=get_repos)
+    async def commits2(self, interact:discord.Interaction, repositorio:str):
+        arquivos = [
+            discord.File('cogs/images/github_70px.png', 'github_70px.png')
+        ]
+        url_formada = repositorio.rstrip('/').split('/')
+        repo_dono = url_formada[-2]
+        repo_nome = url_formada[-1]
+        api = f"https://api.github.com/repos/{repo_dono}/{repo_nome}/commits"
+        resposta = requests.get(api, headers=HEADERS)
+        commits = resposta.json()
+
+        titulo = f'\n{repo_dono}/{repo_nome}\nÚltimos 5 commits:'
+        lista = []
+        for commit in commits[:5]:                      # mostra os 5 commits mais recentes
+            autor = commit["commit"]["author"]["name"]
+            mensagem = commit["commit"]["message"]
+            data = commit["commit"]["author"]["date"]
+            url_commit = commit["html_url"]
+            botao = ui.Button(label='Ver', style=discord.ButtonStyle.link, url= url_commit)
+            lista.append(ui.Section(ui.TextDisplay(f'\n🔃 {autor} — {data[:10]}\n{mensagem}'),accessory=botao))
+            lista.append(ui.Separator(visible=False, spacing=discord.SeparatorSpacing.small))
+
+        layout = LayoutView(titulo, repositorio, lista)
+        await interact.response.send_message(view=layout, files=arquivos)
 
 class VincularGit_Modal(discord.ui.Modal):
     def __init__(self):
@@ -296,6 +324,32 @@ class RegistrarRep_Modal(discord.ui.Modal):
         sessao.commit()                                                                 #faz o commit das alterações
         sessao.close()                                                                  #salva as alterações
         await interact.response.send_message(f'{interact.user.mention}, o repositório {self.url.value} foi registrado com sucesso.')
+
+class LayoutView(ui.LayoutView):
+    def __init__(self, titulo:str, repositorio:str, lista=[]):
+        super().__init__()  
+
+        container = ui.Container()
+        imagem = ui.Thumbnail('attachment://github_70px.png')
+        container.add_item(ui.Section(ui.TextDisplay(f'## {titulo}'), accessory=imagem))
+        container.add_item(ui.Separator(visible=True, spacing=discord.SeparatorSpacing.large))
+        container.accent_color=discord.Colour.lighter_grey()
+
+        #listando os commits
+        for item in lista:
+            container.add_item(item)
+        
+
+
+        self.add_item(container)
+        
+        
+    async def resposta_menu(self, interact:discord.Interaction):
+        resposta = interact.data['values'][0]
+        return resposta
+        
+
+
 
 ##########################################################################################################################################################
 async def setup(bot):

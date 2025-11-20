@@ -3,9 +3,9 @@ O desenvolvimento desse bot tem como objetivo aprender e aplicar conceitos anter
 
 **Atenção, mencionarei três tokens durante a configuração, cada token deve estar em uma linha no seu arquivo .env**
 Ex:
-BOT_TOKEN="seu token"
-GITHUB_TOKEN="seu token"
-GEMINI_KEY="sua key"
+* BOT_TOKEN="seu token"
+* GITHUB_TOKEN="seu token"
+* GEMINI_KEY="sua key"
 
 ## Configurando o Bot
 

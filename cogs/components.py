@@ -132,7 +132,7 @@ class Layout_Ajuda(ui.LayoutView):
         container.add_item(ui.TextDisplay('**/gemini**: Faz uma pergunta ao gemini 2.5-Flash.')) 
         container.add_item(ui.Separator(visible=False, spacing=discord.SeparatorSpacing.large))  
         container.add_item(ui.TextDisplay(f'**Canal**: {github.mention}'))   
-        container.add_item(ui.TextDisplay(f'**/vincular_github**: Vincula um perfil do github ao seu usuário do discord.\n**/registrar_repositorio**: Salva um repositório no banco de dados do Bot.\n**Apenas {guild.get_role(1436841614252441620).mention}**.\n\n**/remover_repositorio**: Remove um repositório do banco de dados.\n**Apenas {guild.get_role(1436841614252441620).mention}**.\n\n**/abrir_issue**: Permite a abertura de issues no repositório selecionado.'))  
+        container.add_item(ui.TextDisplay(f'**/github**: Verifica o perfil do GitHub de um usuário do discord.\n**/vincular_github**: Vincula um perfil do github ao seu usuário do discord.\n**/registrar_repositorio**: Salva um repositório no banco de dados do Bot.\n**Apenas {guild.get_role(1436841614252441620).mention}**.\n\n**/remover_repositorio**: Remove um repositório do banco de dados.\n**Apenas {guild.get_role(1436841614252441620).mention}**.\n\n**/abrir_issue**: Permite a abertura de issues no repositório selecionado.'))  
         container.add_item(ui.Separator(visible=False, spacing=discord.SeparatorSpacing.large))  
         container.add_item(ui.TextDisplay(f'**Canal**: {commits.mention}'))   
         container.add_item(ui.TextDisplay('**/commits**: Mostra os 5 últimos commits de um repositório selecionado.'))  

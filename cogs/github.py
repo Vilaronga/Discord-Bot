@@ -36,10 +36,14 @@ class GitHubIntegração(commands.Cog):
     @app_commands.command(name='abrir_issue', description='Abre uma issue em um repositório selecionado.')
     @app_commands.autocomplete(repositorio=get_repos)
     async def abrir_issue(self, interact:discord.Interaction, repositorio:str):
-        url_formatada = repositorio.rstrip('/').split('/')
-        repo_dono = url_formatada[-2]
-        repo_nome = url_formatada[-1]
-        await interact.response.send_modal(Modal_AbrirIssue(repo_nome=repo_nome, repo_dono=repo_dono))
+        guild = interact.guild
+        channel = guild.get_channel(1437979512624123955).id
+        if interact.channel_id == channel:
+            url_formatada = repositorio.rstrip('/').split('/')
+            repo_dono = url_formatada[-2]
+            repo_nome = url_formatada[-1]
+            return await interact.response.send_modal(Modal_AbrirIssue(repo_nome=repo_nome, repo_dono=repo_dono))
+        await interact.response.send_message(f'Este comando não pode ser utilizado nesse canal, utilize {guild.get_channel(1437979512624123955).mention}')
 
     '''
     #Comando /commits
@@ -282,7 +286,6 @@ class GitHubIntegração(commands.Cog):
             return
         elif interact.channel_id != channel:
             await interact.response.send_message(f'Este comando não pode ser utilizado nesse canal, tente em {guild.get_channel(1437979512624123955).mention}.', ephemeral=True)
-            return
 
     #comando /vincular_github
     @app_commands.command(name='vincular_github', description='Vincula seu GitHub ao seu perfil do Discord')
@@ -293,9 +296,7 @@ class GitHubIntegração(commands.Cog):
             await interact.response.send_modal(VincularGit_Modal())
             return
         await interact.response.send_message(f'Este comando não pode ser utilizado nesse canal, utilize {guild.get_channel(1437979512624123955).mention}')
-        return
         
-    
     ######################################################### Comandos v2 ################################################################################
     #comando commits v2
     @app_commands.command(name='commits', description='Verifica os últimos 5 commits de um repositório.')
@@ -335,7 +336,7 @@ class GitHubIntegração(commands.Cog):
             await interact.followup.send(view=layout, files=arquivos)
             return
         await interact.response.send_message(f'Este comando não pode ser utilizado nesse canal, utilize {guild.get_channel(1437979541510557706).mention}.', ephemeral=True)
-        return
+       
         
     #comando branches v2
     @app_commands.command(name='branches', description='Verifica as branches de um repositório.')
@@ -374,16 +375,16 @@ class GitHubIntegração(commands.Cog):
             await interact.followup.send(view=layout, files=arquivos)
             return
         await interact.response.send_message(f'Este comando não pode ser utilizado nesse canal, utilize {guild.get_channel(1440948751496646726).mention}.', ephemeral=True)
-        return
+        
 
     #comando issues v2
     @app_commands.command(name='issues', description='Verifica as issues abertas de um repositório.')
     @app_commands.autocomplete(repositorio=get_repos)
     async def issues(self, interact:discord.Interaction, repositorio:str):
+        await interact.response.defer(thinking=True)
         guild = interact.guild
         channel = guild.get_channel(1437979851146530938).id
         if interact.channel_id == channel:
-            await interact.response.defer(thinking=True)
             arquivos = [
                 discord.File('cogs/images/github_70px.png', 'github_70px.png')
             ]
@@ -414,16 +415,15 @@ class GitHubIntegração(commands.Cog):
             await interact.followup.send(view=layout, files=arquivos)
             return
         await interact.followup.send(f'Este comando não pode ser utilizado nesse canal, utilize {guild.get_channel(1437979851146530938).mention}.', ephemeral=True)
-        return
 
     #comando pushs v2
     @app_commands.command(name='pushs', description='Verifica os últimos 5 pushs de um repositório.')
     @app_commands.autocomplete(repositorio=get_repos)
     async def pushs(self, interact:discord.Interaction, repositorio:str):
+        await interact.response.defer(thinking=True)
         guild = interact.guild
         channel = guild.get_channel(1437979830707814561).id
         if interact.channel_id == channel:
-            await interact.response.defer(thinking=True)
             arquivos = [
                 discord.File('cogs/images/github_70px.png', 'github_70px.png')
             ]
@@ -458,7 +458,7 @@ class GitHubIntegração(commands.Cog):
             await interact.followup.send(view=layout, files=arquivos)
             return
         await interact.followup.send(f'Este comando não pode ser utilizado nesse canal, utilize {guild.get_channel(1437979830707814561).mention}.', ephemeral=True)
-        return
+        
     
 ###################################################################### Modals ############################################################################
 class VincularGit_Modal(discord.ui.Modal):

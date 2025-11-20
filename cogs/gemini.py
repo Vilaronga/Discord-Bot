@@ -18,7 +18,7 @@ class Gemini(commands.Cog):
 
     @app_commands.command(name='gemini', description='Faz uma pergunta ao chat gpt.')
     async def gpt(self, interact:discord.Interaction, pergunta:str):
-        await interact.response.defer() 
+        await interact.response.defer(thinking=True, ephemeral=True) 
         canal_gemini = 1437634502389141524
         #regras:
         if interact.channel.id != canal_gemini:

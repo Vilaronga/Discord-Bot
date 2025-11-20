@@ -31,11 +31,11 @@ class GitHubIntegração(commands.Cog):
         return escolhas
     
     ######################################################################################################################################################## Comandos
-
+    '''
     #Comando /commits
-    @app_commands.command(name="commits", description="Mostra os commits mais recentes do repositório selecionado.")
+    @app_commands.command(name="commits_v1", description="Mostra os commits mais recentes do repositório selecionado.")
     @app_commands.autocomplete(repositorio=get_repos)
-    async def commits(self, interaction:discord.Interaction, repositorio:str):
+    async def commits_v1(self, interaction:discord.Interaction, repositorio:str):
         url_formada = repositorio.rstrip('/').split('/')
         repo_dono = url_formada[-2]
         repo_nome = url_formada[-1]
@@ -66,9 +66,9 @@ class GitHubIntegração(commands.Cog):
         await interaction.response.send_message(embed=embed, view=view)
 
     #Comando /pushs
-    @app_commands.command(name="pushs", description="Mostra quem enviou pushs recentes para o repositório selecionado.")
+    @app_commands.command(name="pushs_v1", description="Mostra quem enviou pushs recentes para o repositório selecionado.")
     @app_commands.autocomplete(repositorio=get_repos)
-    async def pushs(self, interaction: discord.Interaction, repositorio: str):
+    async def pushs_v1(self, interaction: discord.Interaction, repositorio: str):
         url_formada = repositorio.rstrip('/').split('/')
         repo_dono = url_formada[-2]
         repo_nome = url_formada[-1]
@@ -101,9 +101,9 @@ class GitHubIntegração(commands.Cog):
         await interaction.response.send_message(embed=embed, view=view)
 
    #Comando /issues
-    @app_commands.command(name="issues", description="Lista as 5 últimas issues abertas do repositório selecionado.")
+    @app_commands.command(name="issues_v1", description="Lista as 5 últimas issues abertas do repositório selecionado.")
     @app_commands.autocomplete(repositorio=get_repos)
-    async def issues(self, interaction:discord.Interaction, repositorio:str):
+    async def issues_v1(self, interaction:discord.Interaction, repositorio:str):
         url_formada = repositorio.rstrip('/').split('/')
         repo_dono = url_formada[-2]
         repo_nome = url_formada[-1]
@@ -133,9 +133,9 @@ class GitHubIntegração(commands.Cog):
         await interaction.response.send_message(embed=embed, view=view)
     
     #comando /branches
-    @app_commands.command(name='branches', description='Verifica as branches de um repositório selecionado.')
+    @app_commands.command(name='branches_v1', description='Verifica as branches de um repositório selecionado.')
     @app_commands.autocomplete(repositorio=get_repos)
-    async def branches(self, interact:discord.Interaction, repositorio:str):
+    async def branches_v1(self, interact:discord.Interaction, repositorio:str):
         url_formatada = repositorio.rstrip('/').split('/')
         repo_dono = url_formatada[-2]
         repo_nome = url_formatada[-1]
@@ -158,6 +158,7 @@ class GitHubIntegração(commands.Cog):
         view.add_item(botao)
 
         await interact.response.send_message(embed=embed, view=view)
+    '''
 
     #comando /detalhes_repositorio
     @app_commands.command(name='detalhes_repositorio', description='Verifica os detalhes de um repositório selecionado.')
@@ -237,7 +238,13 @@ class GitHubIntegração(commands.Cog):
     #comando /registrar_repositorio
     @app_commands.command(name='registrar_repositorio', description='Registra um repositório ao banco de dados.')
     async def rep_register(self, interact:discord.Interaction):
-        await interact.response.send_modal(RegistrarRep_Modal())
+        guild = interact.guild
+        adm = guild.get_role(1436841614252441620)
+        channel = guild.get_channel(1437979512624123955)
+        if adm in interact.user.roles and interact.channel_id == channel:
+            await interact.response.send_modal(RegistrarRep_Modal())
+            return
+        await interact.response.send_message(f'Somente um administrador pode utilizar esse comando ou está sendo enviado no chat errado, tente {guild.get_channel(1437979512624123955).mention}.', ephemeral=True)
 
     #comando /remover_repositorio
     @app_commands.command(name='remover_repositorio', description='Remove um repositório do banco de dados.')
@@ -256,10 +263,11 @@ class GitHubIntegração(commands.Cog):
     async def vincular_github(self, interact:discord.Interaction):
         await interact.response.send_modal(VincularGit_Modal())
     
-    #comando commit melhorado
-    @app_commands.command(name='commit2', description='commits2')
+    #########################################################################################################
+    #comando commits v2
+    @app_commands.command(name='commits', description='Verifica os últimos 5 commits de um repositório.')
     @app_commands.autocomplete(repositorio=get_repos)
-    async def commits2(self, interact:discord.Interaction, repositorio:str):
+    async def commits(self, interact:discord.Interaction, repositorio:str):
         arquivos = [
             discord.File('cogs/images/github_70px.png', 'github_70px.png')
         ]
@@ -278,11 +286,106 @@ class GitHubIntegração(commands.Cog):
             data = commit["commit"]["author"]["date"]
             url_commit = commit["html_url"]
             botao = ui.Button(label='Ver', style=discord.ButtonStyle.link, url= url_commit)
-            lista.append(ui.Section(ui.TextDisplay(f'\n🔃 {autor} — {data[:10]}\n{mensagem}'),accessory=botao))
+            lista.append(ui.Section(ui.TextDisplay(f'\n🔃 *{autor}* — _{data[:10]}_\n • **{mensagem}**'),accessory=botao))
             lista.append(ui.Separator(visible=False, spacing=discord.SeparatorSpacing.large))
-
-        layout = LayoutView(titulo, repositorio, lista)
+        labelbotao = f'Todos os commits'
+        layout = LayoutView(titulo, repositorio, labelbotao, lista)
         await interact.response.send_message(view=layout, files=arquivos)
+
+    #comando branches v2
+    @app_commands.command(name='branches', description='Verifica as branches de um repositório.')
+    @app_commands.autocomplete(repositorio=get_repos)
+    async def branches(self, interact:discord.Interaction, repositorio:str):
+        arquivos = [
+            discord.File('cogs/images/github_70px.png', 'github_70px.png')
+        ]
+        url_formada = repositorio.rstrip('/').split('/')
+        repo_dono = url_formada[-2]
+        repo_nome = url_formada[-1]
+        api = f"https://api.github.com/repos/{repo_dono}/{repo_nome}/branches"
+        resposta = requests.get(api, headers=HEADERS)
+        branches = resposta.json()
+
+        titulo = f'{repo_dono}/{repo_nome}\nLista de branchs existentes:'
+        lista = []
+        for branch in branches:
+            nome = branch["name"]
+            sha = branch["commit"]["sha"]
+            url_commit = branch["commit"]["url"]
+            botao = ui.Button(label='Ver', style=discord.ButtonStyle.link, url=url_commit)
+            lista.append(ui.Section(ui.TextDisplay(f'🌱 Branch: *{nome}*\n • SHA do último commit: **{sha}**'), accessory=botao))
+            lista.append(ui.Separator(visible=False, spacing=discord.SeparatorSpacing.large))
+        labelbotao = f'Todas as branches'
+        layout = LayoutView(titulo, repositorio, labelbotao, lista)
+        await interact.response.send_message(view=layout, files=arquivos)
+
+    #comando issues v2
+    @app_commands.command(name='issues', description='Verifica as issues abertas de um repositório.')
+    @app_commands.autocomplete(repositorio=get_repos)
+    async def issues(self, interact:discord.Interaction, repositorio:str):
+        arquivos = [
+            discord.File('cogs/images/github_70px.png', 'github_70px.png')
+        ]
+        url_formada = repositorio.rstrip('/').split('/')
+        repo_dono = url_formada[-2]
+        repo_nome = url_formada[-1]
+        api = f"https://api.github.com/repos/{repo_dono}/{repo_nome}/issues"
+        resposta = requests.get(api, headers=HEADERS)
+        issues = resposta.json()
+
+        if not issues:
+            await interact.response.send_message("✅ Nenhuma issue aberta encontrada.", ephemeral=True)
+
+        titulo=f'{repo_dono}/{repo_nome}\nÚltimas 5 issues abertas:'
+        lista = []
+        for issue in issues[:5]:
+            titulo_issue = issue["title"]
+            autor = issue["user"]["login"]
+            url_issue = issue["html_url"]
+            data = issue["created_at"]
+            botao = ui.Button(label='Ver', style=discord.ButtonStyle.link, url=url_issue)
+            lista.append(ui.Section(ui.TextDisplay(f"📋Por *{autor}* — *{data[:10]}*\n • **{titulo_issue}**"), accessory=botao))
+            lista.append(ui.Separator(visible=False, spacing=discord.SeparatorSpacing.large))
+        labelbotao = f'Todas as issues'
+        layout = LayoutView(titulo, repositorio, labelbotao, lista)
+        await interact.response.send_message(view=layout, files=arquivos)
+
+    #comando pushs v2
+    @app_commands.command(name='pushs', description='Verifica os últimos 5 pushs de um repositório.')
+    @app_commands.autocomplete(repositorio=get_repos)
+    async def pushs(self, interact:discord.Interaction, repositorio:str):
+        arquivos = [
+            discord.File('cogs/images/github_70px.png', 'github_70px.png')
+        ]
+        url_formada = repositorio.rstrip('/').split('/')
+        repo_dono = url_formada[-2]
+        repo_nome = url_formada[-1]
+        api = f"https://api.github.com/repos/{repo_dono}/{repo_nome}/events"
+        resposta = requests.get(api, headers=HEADERS)
+        eventos = resposta.json()
+        pushs = []                             
+        for push in eventos:                   
+            if push["type"] == "PushEvent":
+                pushs.append(push)
+
+        if not pushs:
+            await interact.response.send_message("✅ Nenhuma issue aberta encontrada.", ephemeral=True)
+
+        titulo=f'{repo_dono}/{repo_nome}\nÚltimos 5 pushs:'
+        lista = []
+        for push in pushs[:5]:
+            autor = push["actor"]["login"]
+            pushid = push["payload"]["push_id"]
+            data = push["created_at"]
+            head = push["payload"]["head"]
+            before = push["payload"]["before"]
+            lista.append(ui.TextDisplay(f"📤 *{autor}* — *{data[:10]}*\n • Id do push: **{pushid}**.\n • Head: **{head}**\n • Before: **{before}**"))
+            lista.append(ui.Separator(visible=False, spacing=discord.SeparatorSpacing.large))
+        labelbotao = f'Todos os pushs'
+        layout = LayoutView(titulo, repositorio, labelbotao, lista)
+        await interact.response.send_message(view=layout, files=arquivos)
+    
+    ########################################################################################################################################
 
 class VincularGit_Modal(discord.ui.Modal):
     def __init__(self):
@@ -326,7 +429,7 @@ class RegistrarRep_Modal(discord.ui.Modal):
         await interact.response.send_message(f'{interact.user.mention}, o repositório {self.url.value} foi registrado com sucesso.')
 
 class LayoutView(ui.LayoutView):
-    def __init__(self, titulo:str, repositorio:str, lista=[]):
+    def __init__(self, titulo:str, repositorio:str, labelbotao:str, lista=[]):
         super().__init__()  
 
         container = ui.Container()
@@ -335,13 +438,12 @@ class LayoutView(ui.LayoutView):
         container.add_item(ui.Separator(visible=True, spacing=discord.SeparatorSpacing.large))
         container.accent_color=discord.Colour.lighter_grey()
 
-        #listando os commits
         for item in lista:
             container.add_item(item)
         
         container.add_item(ui.Separator(visible=True, spacing=discord.SeparatorSpacing.large))
 
-        botao = ui.Button(label='Todos os commits', style=discord.ButtonStyle.link, url=repositorio)
+        botao = ui.Button(label=labelbotao, style=discord.ButtonStyle.link, url=repositorio)
         container.add_item(ui.Section(ui.TextDisplay(f'### Dados obtidos a partir da API do GitHub.'), accessory=botao))
         self.add_item(container)
         
@@ -349,8 +451,6 @@ class LayoutView(ui.LayoutView):
         resposta = interact.data['values'][0]
         return resposta
         
-
-
 
 ##########################################################################################################################################################
 async def setup(bot):

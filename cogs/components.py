@@ -2,6 +2,8 @@ import discord
 from discord import app_commands, ui
 from discord.ext import commands
 
+# Esta classe representa apenas um modelo base de um LayoutView que utiliza um recurso do discord chamado Components v2. O LayoutView nos permite ter maior controle de personalização da resposta quando em comparação com os outros tipos (embeds, respostas comuns...)
+
 class Components(commands.Cog):
     def __init__(self, bot):
         self.bot = bot

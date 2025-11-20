@@ -14,8 +14,8 @@ from discord.ext import commands
 #Ephemeral determina que aquela resposta somente será visível para o usuário que realizou a interação. Ou seja, quem chamou o comando.
 
 #A limitação do interaction é que ele só pode mandar uma resposta, ou seja só pode haver um interact.response...
-#Caso a resposta demore mais de 3 segundo para sair, o bot dará um erro, então para contornar isso, utilizamos interact.response.defer()
 #para contornar isso, utilizamos o interact.followup.send(), onde ele entende que é uma continuação da mensagem.
+#Caso a resposta demore mais de 3 segundo para sair, o bot dará um erro, para contornar isso, utilizamos interact.response.defer()
 
 class Embeds(commands.Cog):
     def __init__(self, bot):
@@ -25,9 +25,9 @@ class Embeds(commands.Cog):
     async def criar_embed(self, interact:discord.Interaction):
         await interact.response.send_modal(Embed_Modal())
 
-############################################################################################################################################ Embed com modal (Formulário) - Somente para mais comodidade
+############################################################################################################################################ Embed com modal (Formulário) - Somente para mais comodidade do usuário
 
-## Modal é meio que um formulário (parecido com uma view), por isso utiliza-se o self.add_item(self.x), para adicionar o objeto dentro do objeto view (visualização).
+## Modal é formulário que representa uma UI (tal como uma view), utilizamos o self.add_item(self.x), para adicionar objetos dentro do objeto view (visualização).
 
 class Embed_Modal(discord.ui.Modal):
     def __init__(self):
